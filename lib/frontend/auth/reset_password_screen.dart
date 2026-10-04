@@ -1,144 +1,97 @@
+import '../redesign/app_text_field.dart';
 import 'package:flutter/material.dart';
 import '../../backend/services/supabase_service.dart';
-import '../theme/app_theme.dart';
+import '../../backend/validation/form_policy.dart';
+import '../redesign/ui.dart';
+import '../redesign/feedback.dart';
 import '../widgets/maak_logo.dart';
-import 'check_email_screen.dart';
-import 'login_screen.dart';
+import '../theme/app_theme.dart';
+import 'verify_reset_otp_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
-
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  bool _loading = false;
-
+  final _form = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  bool _busy = false;
   @override
   void dispose() {
-    _emailController.dispose();
+    _email.dispose();
     super.dispose();
   }
 
-  Future<void> _sendResetLink() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _loading = true);
+  Future<void> _send() async {
+    if (!_form.currentState!.validate() || _busy) return;
+    setState(() => _busy = true);
     try {
-      await SupabaseService.sendPasswordReset(_emailController.text.trim());
-      if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => CheckEmailScreen(email: _emailController.text.trim()),
-        ),
-      );
+      await SupabaseService.sendPasswordReset(_email.text);
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerifyResetOtpScreen(email: _email.text.trim()),
+          ),
+        );
+      }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر إرسال الرابط: ${e.toString()}')),
-      );
+      if (mounted) showAppError(context, e, retry: _send);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _busy = false);
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).maybePop(),
+  Widget build(BuildContext context) => AuthCanvas(
+    heroTitle: 'A fresh start.\nA safe connection.',
+    heroSubtitle: 'We’ll help you get back to your community.',
+    children: [
+      const MaakLogo(),
+      const SizedBox(height: 35),
+      const Text(
+        'Reset your password',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'MaakSerif',
+          fontSize: 27,
+          fontWeight: FontWeight.w700,
         ),
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const MaakLogo(),
-                              const SizedBox(height: 24),
-                              const Text(
-                                'Reset your password',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textDark,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                "Enter your email address and we'll send you a link to reset your password.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: AppColors.textMuted),
-                              ),
-                              const SizedBox(height: 24),
-                              TextFormField(
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: const InputDecoration(
-                                  hintText: 'Email address',
-                                  prefixIcon: Icon(Icons.mail_outline),
-                                ),
-                                validator: (v) =>
-                                    (v == null || !v.contains('@'))
-                                        ? 'Enter a valid email'
-                                        : null,
-                              ),
-                              const SizedBox(height: 20),
-                              ElevatedButton(
-                                onPressed: _loading ? null : _sendResetLink,
-                                child: _loading
-                                    ? const SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2),
-                                      )
-                                    : const Text('Send reset link'),
-                              ),
-                              const SizedBox(height: 12),
-                              Center(
-                                child: TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                        builder: (_) => const LoginScreen()),
-                                  ),
-                                  child: const Text(
-                                      'Remember your password? Log in'),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      const MaakBottomHills(),
-                    ],
-                  ),
-                ),
+      const SizedBox(height: 14),
+      const Text(
+        'Enter your email address and we’ll send you a verification code.',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: AppColors.textMuted, height: 1.5),
+      ),
+      const SizedBox(height: 22),
+      Form(
+        key: _form,
+        autovalidateMode: AutovalidateMode.disabled,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const FieldLabel('Email address', requiredField: true),
+            AppTextField(
+              controller: _email,
+              validator: validateEmail,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                hintText: 'you@example.com',
+                prefixIcon: Icon(Icons.mail_outline),
               ),
-            );
-          },
+            ),
+            const SizedBox(height: 24),
+            PrimaryButton(
+              'Send verification code',
+              busy: _busy,
+              onPressed: _send,
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ],
+  );
 }

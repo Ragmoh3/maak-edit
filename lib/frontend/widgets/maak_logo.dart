@@ -43,20 +43,36 @@ class _HillsPainter extends CustomPainter {
 
     final backPath = Path()
       ..moveTo(0, size.height * 0.5)
-      ..quadraticBezierTo(size.width * 0.3, size.height * 0.2,
-          size.width * 0.6, size.height * 0.45)
-      ..quadraticBezierTo(size.width * 0.85, size.height * 0.65, size.width,
-          size.height * 0.4)
+      ..quadraticBezierTo(
+        size.width * 0.3,
+        size.height * 0.2,
+        size.width * 0.6,
+        size.height * 0.45,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.85,
+        size.height * 0.65,
+        size.width,
+        size.height * 0.4,
+      )
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
 
     final frontPath = Path()
       ..moveTo(0, size.height * 0.75)
-      ..quadraticBezierTo(size.width * 0.35, size.height * 0.5,
-          size.width * 0.7, size.height * 0.8)
-      ..quadraticBezierTo(size.width * 0.9, size.height * 0.95, size.width,
-          size.height * 0.7)
+      ..quadraticBezierTo(
+        size.width * 0.35,
+        size.height * 0.5,
+        size.width * 0.7,
+        size.height * 0.8,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.9,
+        size.height * 0.95,
+        size.width,
+        size.height * 0.7,
+      )
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();

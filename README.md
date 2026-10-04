@@ -1,67 +1,23 @@
-# Ma'ak — Flutter + Supabase
+# Ma’ak — Complete Flutter redesign
 
-Screens included (matching the mockups):
+Read **[README_AR.md](README_AR.md)** for the full Arabic setup guide.
 
-- `lib/screens/login_screen.dart` — Welcome back / Log in
-- `lib/screens/create_account_screen.dart` — Create your account
-- `lib/screens/choose_role_screen.dart` — Choose your role (Help Seeker / Volunteer)
-- `lib/screens/help_seeker_registration_screen.dart` — Help Seeker Registration
-- `lib/screens/volunteer_registration_screen.dart` — Volunteer Registration (with file upload)
-- `lib/screens/reset_password_screen.dart` — Reset your password
-- `lib/screens/check_email_screen.dart` — Check your email
-- `lib/widgets/logged_out_dialog.dart` — "You're logged out" modal
+- Flutter 3.35+ / Dart 3.9+, Android and web targets.
+- Original logo preserved byte for byte.
+- Two-step registration, live password checks, profile view/edit, unread notifications,
+  admin-managed conditions and volunteer application review/reapplication.
+- Persistent Supabase support requests, conversations and session scheduling.
 
 ## Setup
 
-0. This folder has the Dart source (`lib/`), `pubspec.yaml`, and the SQL
-   schema, but not the native `android/`, `ios/`, `web/` platform folders
-   (those need your local Flutter SDK to generate). After extracting the
-   folder, run this once inside it to add them:
-   ```bash
-   flutter create .
-   ```
-   This will not overwrite your existing `lib/` or `pubspec.yaml`.
-1. Create a Supabase project at supabase.com.
-2. In the SQL editor, run `supabase_schema.sql` (creates tables, storage
-   bucket, and Row Level Security policies).
-3. In `lib/services/supabase_service.dart`, replace:
-   ```dart
-   url: 'https://YOUR_PROJECT_REF.supabase.co',
-   anonKey: 'YOUR_SUPABASE_ANON_KEY',
-   ```
-   with your project's values (Project Settings → API).
-4. Install dependencies:
-   ```bash
-   flutter pub get
-   ```
-5. Run:
-   ```bash
-   flutter run
-   ```
+1. Run the entire `supabase_schema.sql` in your existing Supabase SQL Editor.
+2. Configure signup/recovery email templates to include `{{ .Token }}` and working SMTP.
+3. `flutter pub get`, `flutter analyze`, `flutter test`, then `flutter run`.
+4. Android requires Android Studio SDK platform 36 and Java 17. Gradle files use the
+   Flutter 3.35 template with the original application ID `com.example.ma_ak`.
+5. For web preview: `flutter run -d chrome`. Supabase access still requires SQL setup.
 
-## Using the "logged out" dialog
+The source project’s public Supabase connection is retained as a configurable default.
+Override with `--dart-define=SUPABASE_URL=... --dart-define=SUPABASE_PUBLISHABLE_KEY=...`.
 
-Call it wherever you sign the user out, e.g. from a profile/settings screen:
-
-```dart
-await SupabaseService.signOut();
-if (context.mounted) {
-  showLoggedOutDialog(
-    context,
-    onBackToLogin: () => Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (route) => false,
-    ),
-  );
-}
-```
-
-## Notes
-
-- The logo is a placeholder `Icon` widget in `lib/widgets/maak_logo.dart` —
-  swap in your real logo asset when you have it.
-- Chronic condition / language lists live in
-  `lib/screens/help_seeker_registration_screen.dart` as `kChronicConditions`
-  and `kLanguages` — edit these to match your real taxonomy.
-- Volunteer document uploads go to the `verification-documents` storage
-  bucket, one folder per user id, so RLS can restrict access correctly.
+See **VALIDATION.md** for executed checks and the remaining device/account checks.

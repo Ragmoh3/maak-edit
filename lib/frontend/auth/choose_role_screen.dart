@@ -1,145 +1,86 @@
 import 'package:flutter/material.dart';
+import '../redesign/ui.dart';
+import '../redesign/registration.dart';
 import '../theme/app_theme.dart';
 import '../widgets/maak_logo.dart';
-import 'help_seeker_registration_screen.dart';
-import 'volunteer_registration_screen.dart';
-enum MaakRole { helpSeeker, volunteer }
 
 class ChooseRoleScreen extends StatelessWidget {
   const ChooseRoleScreen({super.key});
-
-  // Tapping a role card navigates straight to that role's registration
-  // screen — no separate "Continue" step. The account itself (name/email/
-  // password) and the chosen role are only created once the user finishes
-  // the registration form on the next screen.
-  void _selectRole(BuildContext context, MaakRole role) {
-    if (role == MaakRole.helpSeeker) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const HelpSeekerRegistrationScreen()),
-      );
-    } else {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const VolunteerRegistrationScreen()),
-      );
-    }
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).maybePop(),
+  Widget build(BuildContext context) => AuthCanvas(
+    heroTitle: 'Find your kind\nof support.',
+    heroSubtitle: 'Choose the journey that feels right for you.',
+    children: [
+      const MaakLogo(),
+      const SizedBox(height: 35),
+      const Text(
+        'How can we be with you?',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'MaakSerif',
+          fontSize: 27,
+          fontWeight: FontWeight.w700,
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const MaakLogo(),
-              const SizedBox(height: 24),
-              const Text(
-                'Choose your role',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                "Select how you would like to use Ma'ak",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textMuted),
-              ),
-              const SizedBox(height: 24),
-              _RoleCard(
-                icon: Icons.person_outline,
-                title: 'Help Seeker',
-                description:
-                    "I am living with a chronic condition and I'm looking for peer support.",
-                onTap: () => _selectRole(context, MaakRole.helpSeeker),
-              ),
-              const SizedBox(height: 16),
-              _RoleCard(
-                icon: Icons.groups_outlined,
-                title: 'Volunteer',
-                description:
-                    'I have lived experience with a chronic condition and I want to support others.',
-                onTap: () => _selectRole(context, MaakRole.volunteer),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'You can change this later in your profile.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
-              ),
-              const SizedBox(height: 24),
-            ],
+      const SizedBox(height: 12),
+      const Text(
+        'Choose the journey that fits you.',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: AppColors.textMuted),
+      ),
+      const SizedBox(height: 32),
+      _role(
+        context,
+        'Help seeker',
+        'I’m living with a chronic condition and looking for peer support.',
+        Icons.favorite_border,
+        'help_seeker',
+      ),
+      const SizedBox(height: 16),
+      _role(
+        context,
+        'Volunteer',
+        'I have lived experience and want to support someone else.',
+        Icons.people_outline,
+        'volunteer',
+      ),
+    ],
+  );
+  Widget _role(
+    BuildContext context,
+    String title,
+    String text,
+    IconData icon,
+    String role,
+  ) => SurfaceCard(
+    onTap: () => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => RegistrationScreen(role: role)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 35, color: AppColors.primaryNavy),
+        const SizedBox(height: 16),
+        Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'MaakSerif',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _RoleCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
-  final VoidCallback onTap;
-
-  const _RoleCard({
-    required this.icon,
-    required this.title,
-    required this.description,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: AppColors.fieldFill,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.fieldBorder),
+        const SizedBox(height: 8),
+        Text(
+          text,
+          style: const TextStyle(color: AppColors.textMuted, height: 1.5),
         ),
-        child: Row(
-          children: [
-            Icon(icon, size: 28, color: AppColors.primaryNavy),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: AppColors.textMuted),
-          ],
+        const SizedBox(height: 12),
+        const Align(
+          alignment: Alignment.centerRight,
+          child: Icon(Icons.arrow_forward),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
 }

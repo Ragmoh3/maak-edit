@@ -1,13 +1,15 @@
+import '../redesign/ui.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'login_screen.dart';
+
 class CheckEmailScreen extends StatelessWidget {
   final String email;
   const CheckEmailScreen({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BotanicalScaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -24,8 +26,11 @@ class CheckEmailScreen extends StatelessWidget {
                       color: AppColors.selectedCardFill,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(Icons.mail_outline,
-                        size: 40, color: AppColors.primaryNavy),
+                    child: const Icon(
+                      Icons.mail_outline,
+                      size: 40,
+                      color: AppColors.primaryNavy,
+                    ),
                   ),
                   Container(
                     padding: const EdgeInsets.all(4),
@@ -33,7 +38,11 @@ class CheckEmailScreen extends StatelessWidget {
                       color: AppColors.primaryNavy,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.check, size: 16, color: Colors.white),
+                    child: const Icon(
+                      Icons.check,
+                      size: 16,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
@@ -41,6 +50,7 @@ class CheckEmailScreen extends StatelessWidget {
               const Text(
                 'Check your email',
                 style: TextStyle(
+                  fontFamily: 'MaakSerif',
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textDark,
